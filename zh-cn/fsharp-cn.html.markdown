@@ -56,18 +56,17 @@ let evens list =
 
 evens oneToFive               // 现在运行这个函数
 
-// You can use parens to clarify precedence. In this example,
-// do "map" first, with two args, then do "sum" on the result.
-// Without the parens, "List.map" would be passed as an arg to List.sum
+// 你可以使用括号来明确优先级
+// 在本例中，首先做包含两个参数的"map"操作，然后对结果求和。
+// 如果没有括号，"List.map"会被当作参数传给"List.sum"
 let sumOfSquaresTo100 =
    List.sum ( List.map square [1..100] )
+// 你可以使用"|>"符号将一个操作的输出重定向到下一个操作
+// F#中的管道(pipe)数据和UNIX非常类似，都十分常见。
 
-// You can pipe the output of one operation to the next using "|>"
-// Piping data around is very common in F#, similar to UNIX pipes.
-
-// Here is the same sumOfSquares function written using pipes
+// 下面是一个使用管道编写的函数(sumOfSquares)
 let sumOfSquaresTo100piped =
-   [1..100] |> List.map square |> List.sum  // "square" was defined earlier
+   [1..100] |> List.map square |> List.sum  // 变量"square"是在之前定义的
 
 // you can define lambdas (anonymous functions) using the "fun" keyword
 let sumOfSquaresTo100withFun =
