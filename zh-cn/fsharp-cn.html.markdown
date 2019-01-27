@@ -26,7 +26,7 @@ F#的语法和C系列语言的语法不同:
 // 基础语法
 // ================================================
 
-// ------ "变量" (可惜不是真正意义上的变量) ------
+// ------ "变量" (并非真正意义上的变量) ------
 // "let"关键字用来定义一个值不可改变的变量
 let myInt = 5
 let myFloat = 3.14
@@ -38,7 +38,7 @@ let oneToFive = 1 :: twoToFive   // 使用'::'连接一个数和一个链表并�
 // 结果是[1; 2; 3; 4; 5]
 let zeroToFive = [0; 1] @ twoToFive   // 使用'@'连接两个列表
 
-// 重点：只有分号可以用作分隔符，逗号永远不可以！
+// 注意：只有分号可以用作分隔符，逗号永远不可以！
 
 // ------ 函数 ------
 // "let"关键字也可以用来定义函数
@@ -48,9 +48,9 @@ square 3                      // 现在运行这个函数，当然也是不需�
 let add x y = x + y           // 不要使用add(x,y)，那是完全不同的另一种意义
 add 2 3                       // 现在运行这个函数
 
-// 使用缩进即可定义一个多行函数，这个函数不应该使用分号
+// 使用缩进即可定义一个多行函数，不需要使用分号
 let evens list =
-   let isEven x = x % 2 = 0   // 定义一个名为"isEven"的子函数
+   let isEven x = x % 2 = 0   // 定义一个名为"isEven"的子函数，注意判断相等使用"="而不是"=="
    List.filter isEven list    // List.filter是一个接受两个参数的库函数
                               // 两个参数的类型分别是一个返回布尔值的函数和一个列表
 
@@ -62,36 +62,34 @@ evens oneToFive               // 现在运行这个函数
 let sumOfSquaresTo100 =
    List.sum ( List.map square [1..100] )
 // 你可以使用"|>"符号将一个操作的输出重定向到下一个操作
-// F#中的管道(pipe)数据和UNIX非常类似，都十分常见。
+// F#中的管道(pipe)数据和UNIX系统中的非常类似。
 
-// 下面是一个使用管道编写的函数(sumOfSquares)
+// 下面是一个使用管道编写的sumOfSquares
 let sumOfSquaresTo100piped =
    [1..100] |> List.map square |> List.sum  // 变量"square"是在之前定义的
 
-// you can define lambdas (anonymous functions) using the "fun" keyword
+// 可以使用"fun"关键字定义匿名函数(lambda function)
 let sumOfSquaresTo100withFun =
    [1..100] |> List.map (fun x -> x * x) |> List.sum
 
-// In F# there is no "return" keyword. A function always
-// returns the value of the last expression used.
+// F#没有"return"关键字，取而代之的是返回函数中最后一个表达式的结果
 
-// ------ Pattern Matching ------
-// Match..with.. is a supercharged case/switch statement.
+// ------ 模式匹配 ------
+// match..with是加强版的switch/case语句
 let simplePatternMatch =
    let x = "a"
    match x with
     | "a" -> printfn "x is a"
     | "b" -> printfn "x is b"
-    | _ -> printfn "x is something else"   // underscore matches anything
+    | _ -> printfn "x is something else"  // 下划线用来匹配任何内容
 
-// F# doesn't allow nulls by default -- you must use an Option type
-// and then pattern match.
-// Some(..) and None are roughly analogous to Nullable wrappers
+// 由于F#不允许默认空值，所以你必须使用Option类型，随后再进行模式匹配
+// Some(..)和None大致类似于对Nullable的包装
 let validValue = Some(99)
 let invalidValue = None
 
-// In this example, match..with matches the "Some" and the "None",
-// and also unpacks the value in the "Some" at the same time.
+// 这个例子展示了用match..with来匹配"Some"和"None"
+// 同时展示了对Some的拆箱(unpack)操作
 let optionPatternMatch input =
    match input with
     | Some i -> printfn "input is an int=%d" i
@@ -100,89 +98,86 @@ let optionPatternMatch input =
 optionPatternMatch validValue
 optionPatternMatch invalidValue
 
-// ------ Printing ------
-// The printf/printfn functions are similar to the
-// Console.Write/WriteLine functions in C#.
+// ------ 打印操作 ------
+// printf和printfn函数类似于C#中的Console.Write和Console.WriteLine
 printfn "Printing an int %i, a float %f, a bool %b" 1 2.0 true
 printfn "A string %s, and something generic %A" "hello" [1; 2; 3; 4]
 
-// There are also sprintf/sprintfn functions for formatting data
-// into a string, similar to String.Format in C#.
+// F#中也有类似于C#的String.Format的用来格式化字符串的函数
+// 它们是sprintf和sprintfn
 
 // ================================================
-// More on functions
+// 函数进阶
 // ================================================
 
-// F# is a true functional language -- functions are first
-// class entities and can be combined easily to make powerful
-// constructs
+// F#是一门纯函数式语言，函数是一等公民
+// 函数可以很容易地组合成具有强大功能的结构
 
-// Modules are used to group functions together
-// Indentation is needed for each nested module.
+// module用于将函数分组
+//每个嵌套模块都需要缩进
 module FunctionExamples =
 
-    // define a simple adding function
+    // 定义一个简单的加法函数
     let add x y = x + y
 
-    // basic usage of a function
+    // 函数的基本使用
     let a = add 1 2
     printfn "1 + 2 = %i" a
 
-    // partial application to "bake in" parameters
+    // 将函数及其部分参数组合为一个新的函数(柯里化)
     let add42 = add 42
     let b = add42 1
     printfn "42 + 1 = %i" b
 
-    // composition to combine functions
+    // 使用">>"连接两个函数(依次调用)
     let add1 = add 1
     let add2 = add 2
     let add3 = add1 >> add2
     let c = add3 7
     printfn "3 + 7 = %i" c
 
-    // higher order functions
+    // 高阶函数
     [1..10] |> List.map add3 |> printfn "new list is %A"
 
-    // lists of functions, and more
+    // 函数列表
     let add6 = [add1; add2; add3] |> List.reduce (>>)
     let d = add6 7
     printfn "1 + 2 + 3 + 7 = %i" d
 
 // ================================================
-// Lists and collection
+// 列表和集合
 // ================================================
 
-// There are three types of ordered collection:
-// * Lists are most basic immutable collection.
-// * Arrays are mutable and more efficient when needed.
-// * Sequences are lazy and infinite (e.g. an enumerator).
+// F#有三种有序集合
+// * 列表(list)是最基本的值不可变集合
+// * 数组(array)是值可变且在某些情况下高效的集合
+// * 序列(sequence)是惰性且长度无限的(例如enumerator)
 //
-// Other collections include immutable maps and sets
-// plus all the standard .NET collections
+// 其他集合包括值不可变的map和set以及所有的标准.NET集合
 
 module ListExamples =
 
-    // lists use square brackets
+    // 列表使用方括号
     let list1 = ["a"; "b"]
     let list2 = "c" :: list1    // :: is prepending
     let list3 = list1 @ list2   // @ is concat
 
-    // list comprehensions (aka generators)
+    // 列表推导式(又叫生成器)
     let squares = [for i in 1..10 do yield i * i]
 
-    // A prime number generator
-    // - this is using a short notation for the pattern matching syntax
-    // - (p::xs) is 'first :: tail' of the list, could also be written as p :: xs
-    //   this means this matches 'p' (the first item in the list), and xs is the rest of the list
-    //   this is called the 'cons pattern'
-    // - uses 'rec' keyword, which is necessary when using recursion
+    // 一个素数生成器
+    // 这里使用了模式匹配语法的一个简短格式
+    // - (p::xs)是一个"首项::其余"的列表，也可以写作p :: xs
+    // 这意味着用p表示列表的第一项，用xs表示列表的剩余项
+    // 这种匹配方式叫做组合匹配(cons pattern)
+    // 使用递归(recursion)时需要用"rec"关键字
     let rec sieve = function
         | (p::xs) -> p :: sieve [ for x in xs do if x % p > 0 then yield x ]
         | []      -> []
     let primes = sieve [2..50]
     printfn "%A" primes
 
-    // pattern matching for lists
+    // 列表的模式匹配
     let listMatcher aList =
         match aList with
         | [] -> printfn "the list is empty"
@@ -195,7 +190,7 @@ module ListExamples =
     listMatcher [1]
     listMatcher []
 
-    // recursion using lists
+    // 递归使用列表
     let rec sum aList =
         match aList with
         | [] -> 0
@@ -203,7 +198,7 @@ module ListExamples =
     sum [1..10]
 
     // -----------------------------------------
-    // Standard library functions
+    // 标准库函数
     // -----------------------------------------
 
     // map
@@ -214,7 +209,7 @@ module ListExamples =
     let even x = x % 2 = 0
     [1..10] |> List.filter even
 
-    // many more -- see documentation
+    // 更多 -- 详见文档
 
 module ArrayExamples =
 
